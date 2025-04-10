@@ -1,0 +1,252 @@
+{% extends 'base.html' %}
+
+{% block title %}Noticias y Artículos | Auto Elite{% endblock %}
+{% load static %}
+
+{% block content %}
+<div class="container my-5">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12 text-center">
+            <h1 class="display-4 mb-3">Noticias y Artículos</h1>
+            <p class="lead text-muted">Mantente informado sobre las últimas tendencias y noticias del mundo automotriz</p>
+        </div>
+    </div>
+
+    <!-- Articles Filter -->
+    <div class="row mb-4">
+        <div class="col-md-8 mb-3 mb-md-0">
+            <div class="input-group">
+                <input type="text" id="searchInput" class="form-control" placeholder="Buscar artículos...">
+                <button class="btn btn-outline-secondary" type="button" id="searchButton">
+                    <i class="fas fa-search"></i> Buscar
+                </button>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <select class="form-select" id="categoryFilter">
+                <option value="">Todas las categorías</option>
+                {% for category in categories %}
+                    <option value="{{ category.slug }}" {% if selected_category == category.slug %}selected{% endif %}>
+                        {{ category.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <!-- Featured Article -->
+    {% if featured_article %}
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card featured-article">
+                <div class="row g-0">
+                    <div class="col-md-6">
+                        <img src="{{ featured_article.image_url }}" class="img-fluid rounded-start" alt="{{ featured_article.title }}">
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card-body h-100 d-flex flex-column">
+                            <div class="badge bg-primary mb-2">Destacado</div>
+                            <h2 class="card-title">{{ featured_article.title }}</h2>
+                            <p class="card-text">{{ featured_article.content|truncatewords:50 }}</p>
+                            <div class="mt-auto">
+                                <p class="card-text"><small class="text-muted">Publicado el {{ featured_article.created_at|date:"d/m/Y" }}</small></p>
+                                <a href="{% url 'article_detail' featured_article.id %}" class="btn btn-primary">Leer artículo completo</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Articles Grid -->
+    <div class="row" id="articlesContainer">
+        {% for article in articles %}
+        <div class="col-md-6 col-lg-4 mb-4 article-card" data-category="{{ article.category|default:'noticias' }}">
+            <div class="card h-100">
+                {% if article.image_url %}
+                <img src="{{ article.image_url }}" class="card-img-top" alt="{{ article.title }}">
+                {% else %}
+                <img src="{% static 'images/article-placeholder.jpg' %}" class="card-img-top" alt="Placeholder">
+                {% endif %}
+                <div class="card-body">
+                    <h3 class="card-title">{{ article.title }}</h3>
+                    <p class="card-text">{{ article.content|truncatewords:20 }}</p>
+                </div>
+                <div class="card-footer bg-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">{{ article.created_at|date:"d/m/Y" }}</small>
+                        <a href="{% url 'article_detail' article.id %}" class="btn btn-sm btn-outline-primary">Leer más</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <div class="alert alert-info">
+                <h4>No hay artículos disponibles en este momento</h4>
+                <p>Por favor, vuelva más tarde para ver nuevo contenido.</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if articles.has_other_pages %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <nav aria-label="Navegación de páginas">
+                <ul class="pagination justify-content-center">
+                    {% if articles.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ articles.previous_page_number }}" aria-label="Anterior">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link" aria-hidden="true">&laquo;</span>
+                    </li>
+                    {% endif %}
+                    
+                    {% for i in articles.paginator.page_range %}
+                        {% if articles.number == i %}
+                        <li class="page-item active"><span class="page-link">{{ i }}</span></li>
+                        {% else %}
+                        <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if articles.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ articles.next_page_number }}" aria-label="Siguiente">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link" aria-hidden="true">&raquo;</span>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Newsletter Subscription -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card bg-light">
+                <div class="card-body py-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <h3>Suscríbete a nuestro boletín</h3>
+                            <p class="mb-md-0">Recibe las últimas noticias y ofertas especiales directamente en tu correo.</p>
+                        </div>
+                        <div class="col-md-6">
+                            <form id="newsletterForm" class="d-flex">
+                                <input type="email" class="form-control me-2" placeholder="Tu correo electrónico" required>
+                                <button type="button" class="btn btn-primary" onclick="subscribeNewsletter()">Suscribirse</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Search functionality
+    const searchInput = document.getElementById('searchInput');
+    const searchButton = document.getElementById('searchButton');
+    const articlesContainer = document.getElementById('articlesContainer');
+    const articleCards = document.querySelectorAll('.article-card');
+    
+    searchButton.addEventListener('click', filterArticles);
+    searchInput.addEventListener('keyup', function(event) {
+        if (event.key === 'Enter') {
+            filterArticles();
+        }
+    });
+    
+    // Category filter functionality
+    const categoryFilter = document.getElementById('categoryFilter');
+    categoryFilter.addEventListener('change', filterArticles);
+    
+    function filterArticles() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const selectedCategory = categoryFilter.value.toLowerCase();
+        
+        let visibleCount = 0;
+        
+        articleCards.forEach(card => {
+            const title = card.querySelector('.card-title').textContent.toLowerCase();
+            const content = card.querySelector('.card-text').textContent.toLowerCase();
+            const category = card.dataset.category.toLowerCase();
+            
+            const matchesSearch = title.includes(searchTerm) || content.includes(searchTerm);
+            const matchesCategory = !selectedCategory || category === selectedCategory;
+            
+            if (matchesSearch && matchesCategory) {
+                card.style.display = 'block';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        
+        // Show no results message if needed
+        const noResultsElement = document.getElementById('noResults');
+        if (visibleCount === 0) {
+            if (!noResultsElement) {
+                const alert = document.createElement('div');
+                alert.id = 'noResults';
+                alert.className = 'col-12 text-center py-5';
+                alert.innerHTML = `
+                    <div class="alert alert-info">
+                        <h4>No se encontraron artículos</h4>
+                        <p>Intente con otros términos de búsqueda o categoría.</p>
+                    </div>
+                `;
+                articlesContainer.appendChild(alert);
+            }
+        } else if (noResultsElement) {
+            noResultsElement.remove();
+        }
+    }
+});
+
+// Newsletter subscription
+function subscribeNewsletter() {
+    const emailInput = document.querySelector('#newsletterForm input[type="email"]');
+    const email = emailInput.value.trim();
+    
+    if (!email) {
+        alert('Por favor ingresa tu correo electrónico.');
+        return;
+    }
+    
+    // Email validation
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(email)) {
+        alert('Por favor ingresa un correo electrónico válido.');
+        return;
+    }
+    
+    // Show success message (in a real implementation, this would send data to the server)
+    emailInput.value = '';
+    
+    Swal.fire({
+        title: '¡Gracias por suscribirte!',
+        text: 'Recibirás nuestras actualizaciones y ofertas especiales en tu correo.',
+        icon: 'success',
+        confirmButtonText: 'Continuar'
+    });
+}
+</script>
+{% endblock %}

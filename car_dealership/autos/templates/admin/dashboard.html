@@ -1,0 +1,212 @@
+{% extends 'admin/base_site.html' %}
+{% load static %}
+
+{% block title %}Dashboard - Auto Elite{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+    <a href="{% url 'admin:index' %}">Auto Elite Administration</a> | Dashboard
+</h1>
+{% endblock %}
+
+{% block extrahead %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    .dashboard-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+        padding: 20px;
+    }
+    .stat-card {
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+    .chart-container {
+        margin: 20px;
+        padding: 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .dashboard-container {
+        padding: 20px;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+    .table {
+        width: 100%;
+        margin-bottom: 1rem;
+        background-color: transparent;
+    }
+    .table th,
+    .table td {
+        padding: 0.75rem;
+        vertical-align: top;
+        border-top: 1px solid #dee2e6;
+    }
+    .card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+    .card-header {
+        padding: 1rem;
+        border-bottom: 1px solid #dee2e6;
+        background: #f8f9fa;
+    }
+    .card-body {
+        padding: 1rem;
+    }
+    .badge {
+        padding: 0.35em 0.65em;
+        font-size: 0.75em;
+        font-weight: 700;
+        border-radius: 0.25rem;
+    }
+    .bg-warning {
+        background-color: #ffc107;
+    }
+    .bg-success {
+        background-color: #28a745;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <h2>Dashboard - Auto Elite</h2>
+    
+    <div class="dashboard-stats">
+        <div class="stat-card bg-primary text-white">
+            <h3>Vehículos Totales</h3>
+            <h4>{{ total_cars }}</h4>
+        </div>
+        <div class="stat-card bg-success text-white">
+            <h3>Consultas del Mes</h3>
+            <h4>{{ monthly_inquiries }}</h4>
+        </div>
+        <div class="stat-card bg-info text-white">
+            <h3>Artículos Publicados</h3>
+            <h4>{{ total_articles }}</h4>
+        </div>
+        <div class="stat-card bg-warning text-white">
+            <h3>Suscriptores</h3>
+            <h4>{{ total_subscribers }}</h4>
+        </div>
+    </div>
+
+    <div class="row" style="display: flex; flex-wrap: wrap; margin: -10px;">
+        <div style="flex: 1; min-width: 300px; padding: 10px;">
+            <div class="chart-container">
+                <canvas id="inquiriesChart"></canvas>
+            </div>
+        </div>
+        <div style="flex: 1; min-width: 300px; padding: 10px;">
+            <div class="chart-container">
+                <canvas id="categoriesChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Últimas Consultas</h3>
+        </div>
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Nombre</th>
+                        <th>Vehículo</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for inquiry in recent_inquiries %}
+                    <tr>
+                        <td>{{ inquiry.created_at|date:"d/m/Y H:i" }}</td>
+                        <td>{{ inquiry.name }}</td>
+                        <td>{{ inquiry.car }}</td>
+                        <td>
+                            <span class="badge {% if inquiry.status == 'pending' %}bg-warning{% else %}bg-success{% endif %}">
+                                {{ inquiry.get_status_display }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Gráfico de consultas por mes
+    const inquiriesCtx = document.getElementById('inquiriesChart').getContext('2d');
+    new Chart(inquiriesCtx, {
+        type: 'line',
+        data: {
+            labels: {{ months_labels|safe }},
+            datasets: [{
+                label: 'Consultas por Mes',
+                data: {{ monthly_inquiries_data }},
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1,
+                fill: false
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Consultas Mensuales'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+
+    // Gráfico de vehículos por categoría
+    const categoriesCtx = document.getElementById('categoriesChart').getContext('2d');
+    new Chart(categoriesCtx, {
+        type: 'doughnut',
+        data: {
+            labels: {{ category_labels|safe }},
+            datasets: [{
+                data: {{ category_data }},
+                backgroundColor: [
+                    '#FF6384',
+                    '#36A2EB',
+                    '#FFCE56',
+                    '#4BC0C0'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Vehículos por Categoría'
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

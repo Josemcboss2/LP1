@@ -1,0 +1,46 @@
+{% load static %}
+<footer class="bg-dark text-white py-4 mt-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <h5>Auto Elite</h5>
+                <p>"Conduciendo tus sueños a la realidad"</p>
+            </div>
+            <div class="col-md-4">
+                <h5>Enlaces</h5>
+                <ul class="list-unstyled">
+                    <li><a href="{% url 'home' %}" class="text-white">Inicio</a></li>
+                    <li><a href="{% url 'cars' %}" class="text-white">Inventario</a></li>
+                    <li><a href="{% url 'articles' %}" class="text-white">Noticias</a></li>
+                    <li><a href="{% url 'contact' %}" class="text-white">Contacto</a></li>
+                    <li><a href="{% url 'privacy' %}" class="text-white">Política de Privacidad</a></li>
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <h5>Síguenos</h5>
+                <div class="social-icons d-flex gap-3 fs-4">
+                    <a href="https://facebook.com/" target="_blank" class="text-primary">
+                        <i class="fab fa-facebook"></i>
+                    </a>
+                    <a href="https://instagram.com/" target="_blank" class="text-danger">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="https://twitter.com/" target="_blank" class="text-info">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="https://linkedin.com/" target="_blank" class="text-primary">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    <a href="https://youtube.com/" target="_blank" class="text-danger">
+                        <i class="fab fa-youtube"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-12 text-center">
+                <p class="mb-0">&copy; {% now "Y" %} Auto Elite. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </div>
+</footer>

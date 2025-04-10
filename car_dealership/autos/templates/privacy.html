@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block title %}Política de Privacidad | Auto Elite{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-dark text-white">
+                    <h1 class="h2 mb-0">Política de Privacidad</h1>
+                </div>
+                <div class="card-body p-4">
+                    <div class="mb-5">
+                        <p class="lead">Última actualización: {% now "d F, Y" %}</p>
+                        <p>En Auto Elite, respetamos su privacidad y nos comprometemos a proteger sus datos personales. Esta política de privacidad le informará sobre cómo recopilamos, utilizamos y protegemos su información cuando visita nuestro sitio web o utiliza nuestros servicios.</p>
+                    </div>
+
+                    <section class="mb-4">
+                        <h2 class="h4">1. Información que recopilamos</h2>
+                        <p>Podemos recopilar los siguientes tipos de información:</p>
+                        <ul>
+                            <li><strong>Información personal identificable</strong>: Nombre, dirección de correo electrónico, número de teléfono, dirección postal y otros datos que usted proporcione voluntariamente cuando se comunica con nosotros o utiliza nuestros servicios.</li>
+                            <li><strong>Información no personal</strong>: Datos de uso, direcciones IP, tipo de navegador, proveedor de servicios de Internet, páginas de referencia/salida, sistema operativo, fecha/hora y datos de clickstream.</li>
+                            <li><strong>Cookies</strong>: Nuestro sitio web utiliza cookies para mejorar su experiencia. Puede configurar su navegador para rechazar todas las cookies o para que le avise cuando se envíe una cookie.</li>
+                        </ul>
+                    </section>
+
+                    <section class="mb-4">
+                        <h2 class="h4">2. Cómo utilizamos su información</h2>
+                        <p>Utilizamos la información recopilada para:</p>
+                        <ul>
+                            <li>Proporcionar, operar y mantener nuestro sitio web</li>
+                            <li>Mejorar, personalizar y expandir nuestro sitio web</li>
+                            <li>Comprender y analizar cómo utiliza nuestro sitio web</li>
+                            <li>Desarrollar nuevos productos, servicios, características y funcionalidades</li>
+                            <li>Comunicarnos con usted para proporcionar actualizaciones, información relacionada con el servicio, o material promocional</li>
+                            <li>Prevenir fraudes</li>
+                        </ul>
+                    </section>
+
+                    <section class="mb-4">
+                        <h2 class="h4">3. Compartir su información</h2>
+                        <p>No vendemos, alquilamos ni compartimos su información personal con terceros, excepto en las siguientes circunstancias:</p>
+                        <ul>
+                            <li>Con su consentimiento</li>
+                            <li>Con proveedores de servicios que necesitan acceder a dicha información para realizar trabajos en nuestro nombre</li>
+                            <li>Para cumplir con la ley, prevenir fraudes, hacer cumplir nuestras políticas o proteger nuestros derechos, propiedad o seguridad</li>
+                        </ul>
+                    </section>
+
+                    <section class="mb-4">
+                        <h2 class="h4">4. Seguridad de la información</h2>
+                        <p>Implementamos medidas de seguridad diseñadas para proteger su información personal. Sin embargo, ninguna transmisión por Internet o sistema de almacenamiento electrónico es completamente seguro, por lo que no podemos garantizar su seguridad absoluta.</p>
+                    </section>
+
+                    <section class="mb-4">
+                        <h2 class="h4">5. Enlaces a sitios de terceros</h2>
+                        <p>Nuestro sitio web puede contener enlaces a sitios web de terceros. No tenemos control sobre el contenido, las políticas de privacidad o las prácticas de los sitios web de terceros. Le recomendamos revisar la política de privacidad de cada sitio que visite.</p>
+                    </section>
+
+                    <section class="mb-4">
+                        <h2 class="h4">6. Derechos de privacidad</h2>
+                        <p>Dependiendo de su ubicación, puede tener ciertos derechos relacionados con su información personal, como:</p>
+                        <ul>
+                            <li>El derecho a acceder a la información que tenemos sobre usted</li>
+                            <li>El derecho a solicitar la corrección de datos inexactos</li>
+                            <li>El derecho a solicitar la eliminación de su información personal</li>
+                            <li>El derecho a oponerse al procesamiento de su información personal</li>
+                            <li>El derecho a solicitar la restricción del procesamiento de su información personal</li>
+                            <li>El derecho a la portabilidad de datos</li>
+                        </ul>
+                    </section>
+
+                    <section class="mb-4">
+                        <h2 class="h4">7. Cambios a esta política de privacidad</h2>
+                        <p>Podemos actualizar nuestra Política de Privacidad periódicamente. Le notificaremos cualquier cambio publicando la nueva Política de Privacidad en esta página.</p>
+                    </section>
+
+                    <section class="mb-4">
+                        <h2 class="h4">8. Contacto</h2>
+                        <p>Si tiene preguntas o inquietudes sobre nuestra Política de Privacidad, no dude en contactarnos:</p>
+                        <ul>
+                            <li>Por correo electrónico: privacy@autoelite.com</li>
+                            <li>Por teléfono: (123) 456-7890</li>
+                            <li>Por correo postal: Av. Principal #123, Ciudad</li>
+                        </ul>
+                    </section>
+
+                    <hr class="my-4">
+                    
+                    <div class="text-center">
+                        <a href="{% url 'contact' %}" class="btn btn-primary">¿Preguntas? Contáctanos</a>
+                        <a href="{% url 'home' %}" class="btn btn-outline-secondary ms-2">Volver al inicio</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

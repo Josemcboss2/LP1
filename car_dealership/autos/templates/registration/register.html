@@ -1,0 +1,45 @@
+<!-- filepath: c:\Users\Admin\Documents\ProjectoFinal\ProjectoFinal\car_dealership\autos\templates\registration\register.html -->
+{% extends 'base.html' %}
+
+{% block title %}Registrarse{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="text-center mb-4">Crear una Cuenta</h2>
+    <form method="post" action="{% url 'register' %}">
+        {% csrf_token %}
+        <!-- Mostrar errores generales del formulario -->
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+        <!-- Mostrar errores específicos de cada campo -->
+        <div class="mb-3">
+            <label for="username" class="form-label">Nombre de Usuario</label>
+            <input type="text" class="form-control {% if form.username.errors %}is-invalid{% endif %}" id="username" name="username" value="{{ form.username.value|default:'' }}" required>
+            {% for error in form.username.errors %}
+                <div class="invalid-feedback">{{ error }}</div>
+            {% endfor %}
+        </div>
+        <div class="mb-3">
+            <label for="password1" class="form-label">Contraseña</label>
+            <input type="password" class="form-control {% if form.password1.errors %}is-invalid{% endif %}" id="password1" name="password1" required>
+            {% for error in form.password1.errors %}
+                <div class="invalid-feedback">{{ error }}</div>
+            {% endfor %}
+        </div>
+        <div class="mb-3">
+            <label for="password2" class="form-label">Confirmar Contraseña</label>
+            <input type="password" class="form-control {% if form.password2.errors %}is-invalid{% endif %}" id="password2" name="password2" required>
+            {% for error in form.password2.errors %}
+                <div class="invalid-feedback">{{ error }}</div>
+            {% endfor %}
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Registrarse</button>
+    </form>
+    <div class="text-center mt-3">
+        <p>¿Ya tienes una cuenta? <a href="{% url 'login' %}">Inicia sesión aquí</a>.</p>
+    </div>
+</div>
+{% endblock %}

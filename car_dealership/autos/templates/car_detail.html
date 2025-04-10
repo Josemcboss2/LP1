@@ -1,0 +1,317 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+{% block title %}{{ car.year }} {{ car.brand }} {{ car.model }} | Auto Elite{% endblock %}
+
+{% block content %}
+<!-- Add 360 viewer scripts -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.137.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pannellum-react@1.2.4/build/pannellum-react.js"></script>
+
+<div class="container my-5">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Inicio</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'cars' %}">Inventario</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ car.year }} {{ car.brand }} {{ car.model }}</li>
+        </ol>
+    </nav>
+
+    <!-- Car Details -->
+    <div class="row">
+        <!-- Car Images -->
+        <div class="col-lg-7 mb-4">
+            {% if car.has_360_view %}
+            <div class="car-360-viewer position-relative" style="height: 400px;">
+                <div id="viewer360" class="w-100 h-100"></div>
+                <div class="controls position-absolute bottom-0 start-50 translate-middle-x mb-3">
+                    <button class="btn btn-primary btn-sm" id="rotateLeft">
+                        <i class="fas fa-undo"></i>
+                    </button>
+                    <button class="btn btn-primary btn-sm" id="rotateRight">
+                        <i class="fas fa-redo"></i>
+                    </button>
+                    <button class="btn btn-primary btn-sm" id="autoRotate">
+                        <i class="fas fa-sync-alt"></i> Auto-Rotar
+                    </button>
+                </div>
+            </div>
+            {% else %}
+            <div class="car-image-container">
+                <img src="{% if car.image %}{{ car.image.url }}{% elif car.image_url %}{{ car.image_url }}{% else %}{% static 'images/default-car.jpg' %}{% endif %}" 
+                     class="img-fluid rounded" 
+                     alt="{{ car.brand }} {{ car.model }}">
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Car Information -->
+        <div class="col-lg-5">
+            <div class="car-info-card p-4 bg-light rounded">
+                <h1 class="mb-3">{{ car.year }} {{ car.brand }} {{ car.model }}</h1>
+                <div class="price-tag mb-4">
+                    <span class="fs-2 fw-bold text-danger">${{ car.price|floatformat:2 }}</span>
+                </div>
+                <hr>
+                <div class="car-specs mb-4">
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <div class="spec-item">
+                                <span class="fw-bold">Marca:</span> {{ car.brand }}
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="spec-item">
+                                <span class="fw-bold">Modelo:</span> {{ car.model }}
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="spec-item">
+                                <span class="fw-bold">Año:</span> {{ car.year }}
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="spec-item">
+                                <span class="fw-bold">ID:</span> #{{ car.id }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-primary" onclick="inquireAboutCar({{ car.id }}, '{{ car.year }} {{ car.brand }} {{ car.model }}')">
+                        <i class="fas fa-envelope me-2"></i>Solicitar Información
+                    </button>
+                    <button class="btn btn-outline-success" onclick="scheduleTestDrive({{ car.id }})">
+                        <i class="fas fa-car me-2"></i>Agendar Prueba de Manejo
+                    </button>
+                    <a href="tel:+1234567890" class="btn btn-outline-secondary">
+                        <i class="fas fa-phone me-2"></i>Llamar al Vendedor
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Car Description -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-header bg-dark text-white">
+                    <h3 class="mb-0">Descripción</h3>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">{{ car.description|linebreaks }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Related Cars -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <h3 class="mb-4">Vehículos similares</h3>
+        </div>
+        {% for related_car in related_cars %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 car-card">
+                <img src="{% if related_car.image_url %}{{ related_car.image_url }}{% else %}{% static 'images/default-car.jpg' %}{% endif %}" 
+                     class="card-img-top" 
+                     alt="{{ related_car.brand }} {{ related_car.model }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ related_car.year }} {{ related_car.brand }} {{ related_car.model }}</h5>
+                    <p class="car-price">${{ related_car.price|floatformat:2 }}</p>
+                </div>
+                <div class="card-footer bg-white border-top-0">
+                    <a href="{% url 'car_detail' related_car.id %}" class="btn btn-sm btn-outline-primary">Ver Detalles</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <p>No hay vehículos similares disponibles en este momento.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Car Inquiry Modal -->
+<div class="modal fade" id="inquiryModal" tabindex="-1" aria-labelledby="inquiryModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="inquiryModalLabel">Solicitar Información</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Estás interesado en: <span id="inquiryCarName" class="fw-bold"></span></p>
+                <form id="carInquiryForm" method="post" action="{% url 'car_inquiry' %}">
+                    {% csrf_token %}
+                    <input type="hidden" id="carIdInput" name="car_id">
+                    <div class="mb-3">
+                        <label for="nameInput" class="form-label">Nombre completo</label>
+                        <input type="text" class="form-control" id="nameInput" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="emailInput" class="form-label">Correo electrónico</label>
+                        <input type="email" class="form-control" id="emailInput" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="phoneInput" class="form-label">Teléfono</label>
+                        <input type="tel" class="form-control" id="phoneInput" name="phone" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="messageInput" class="form-label">Mensaje</label>
+                        <textarea class="form-control" id="messageInput" name="message" rows="3" required></textarea>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="privacyCheck" required>
+                        <label class="form-check-label" for="privacyCheck">
+                            He leído y acepto la <a href="{% url 'privacy' %}" target="_blank">política de privacidad</a>
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" form="carInquiryForm" class="btn btn-primary">Enviar solicitud</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Test Drive Modal -->
+<div class="modal fade" id="testDriveModal" tabindex="-1" aria-labelledby="testDriveModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="testDriveModalLabel">Agendar Prueba de Manejo</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Selecciona la fecha y hora para tu prueba de manejo.</p>
+                <form id="testDriveForm">
+                    <div class="mb-3">
+                        <label for="dateInput" class="form-label">Fecha</label>
+                        <input type="date" class="form-control" id="dateInput" required min="{{ tomorrow|date:'Y-m-d' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="timeInput" class="form-label">Hora</label>
+                        <select class="form-select" id="timeInput" required>
+                            <option value="">Seleccionar hora</option>
+                            <option value="9:00">9:00 AM</option>
+                            <option value="10:00">10:00 AM</option>
+                            <option value="11:00">11:00 AM</option>
+                            <option value="12:00">12:00 PM</option>
+                            <option value="14:00">2:00 PM</option>
+                            <option value="15:00">3:00 PM</option>
+                            <option value="16:00">4:00 PM</option>
+                            <option value="17:00">5:00 PM</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="nameInputTest" class="form-label">Nombre completo</label>
+                        <input type="text" class="form-control" id="nameInputTest" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="phoneInputTest" class="form-label">Teléfono</label>
+                        <input type="tel" class="form-control" id="phoneInputTest" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="emailInputTest" class="form-label">Correo electrónico</label>
+                        <input type="email" class="form-control" id="emailInputTest" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" onclick="confirmTestDrive()">Agendar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Function to handle car inquiries
+function inquireAboutCar(carId, carName) {
+    document.getElementById('carIdInput').value = carId;
+    document.getElementById('inquiryCarName').textContent = carName;
+    var inquiryModal = new bootstrap.Modal(document.getElementById('inquiryModal'));
+    inquiryModal.show();
+}
+
+// Function to schedule test drive
+function scheduleTestDrive(carId) {
+    var testDriveModal = new bootstrap.Modal(document.getElementById('testDriveModal'));
+    testDriveModal.show();
+}
+
+// Function to confirm test drive
+function confirmTestDrive() {
+    const name = document.getElementById('nameInputTest').value;
+    const date = document.getElementById('dateInput').value;
+    const time = document.getElementById('timeInput').value;
+    
+    if (!name || !date || !time) {
+        alert('Por favor complete todos los campos requeridos');
+        return;
+    }
+    
+    var testDriveModal = bootstrap.Modal.getInstance(document.getElementById('testDriveModal'));
+    testDriveModal.hide();
+    
+    Swal.fire({
+        title: '¡Prueba de manejo agendada!',
+        html: `Tu prueba de manejo ha sido agendada para el <strong>${formatDate(date)}</strong> a las <strong>${time}</strong>.<br>Te contactaremos pronto para confirmar.`,
+        icon: 'success',
+        confirmButtonText: 'Entendido'
+    });
+}
+
+// Helper function to format date
+function formatDate(dateString) {
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString('es-ES', options);
+}
+
+{% if car.has_360_view %}
+document.addEventListener('DOMContentLoaded', function() {
+    let currentAngle = 0;
+    let autoRotate = false;
+    let rotateInterval;
+    const images = JSON.parse('{{ images_360|safe }}');
+    const viewer = document.getElementById('viewer360');
+    
+    function updateView() {
+        const index = Math.floor(currentAngle / (360 / images.length)) % images.length;
+        viewer.style.backgroundImage = `url(${images[index].image})`;
+    }
+    
+    document.getElementById('rotateLeft').addEventListener('click', () => {
+        currentAngle = (currentAngle - 10) % 360;
+        updateView();
+    });
+    
+    document.getElementById('rotateRight').addEventListener('click', () => {
+        currentAngle = (currentAngle + 10) % 360;
+        updateView();
+    });
+    
+    document.getElementById('autoRotate').addEventListener('click', function() {
+        autoRotate = !autoRotate;
+        this.classList.toggle('active');
+        if (autoRotate) {
+            rotateInterval = setInterval(() => {
+                currentAngle = (currentAngle + 2) % 360;
+                updateView();
+            }, 100);
+        } else {
+            clearInterval(rotateInterval);
+        }
+    });
+    
+    updateView();
+});
+{% endif %}
+</script>
+{% endblock %}

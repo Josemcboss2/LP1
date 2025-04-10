@@ -1,0 +1,33 @@
+Django==5.1.7
+Pillow==10.2.0
+django-compressor==4.4
+django-redis==5.4.0
+django-pwa==1.1.0
+django-imagekit==5.0.0
+django-admin-interface==0.28.0
+django-cache-memoize==0.2.0
+django-cors-headers==4.3.1
+
+# Base de datos
+psycopg2-binary==2.9.9
+dj-database-url==2.1.0
+
+# Desarrollo y Testing
+python-dotenv==1.0.1
+pytest-django==4.8.0
+coverage==7.4.3
+django-debug-toolbar==4.3.0
+
+# Utilidades y mejoras
+whitenoise==6.6.0
+django-ckeditor==6.7.0
+django-cleanup==8.1.0
+django-crispy-forms==2.1
+crispy-bootstrap4==2023.1
+django-filter==23.5
+
+# Seguridad
+django-allauth==0.61.1
+
+# Despliegue
+gunicorn==21.2.0

@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}Inventario de Vehículos - Auto Elite{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Nuestro Inventario</h1>
+    
+    <!-- Filters Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Filtrar Vehículos</h5>
+                    <form method="get" class="row g-3">
+                        <div class="col-md-3">
+                            <label for="brand" class="form-label">Marca</label>
+                            <select class="form-select" id="brand" name="brand">
+                                <option value="">Todas las marcas</option>
+                                {% for brand in brands %}
+                                    <option value="{{ brand.brand }}" {% if selected_brand == brand.brand %}selected{% endif %}>{{ brand.brand }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="category" class="form-label">Categoría</label>
+                            <select class="form-select" id="category" name="category">
+                                <option value="">Todas las categorías</option>
+                                <option value="sedan" {% if selected_category == 'sedan' %}selected{% endif %}>Sedán</option>
+                                <option value="suv" {% if selected_category == 'suv' %}selected{% endif %}>SUV</option>
+                                <option value="sports" {% if selected_category == 'sports' %}selected{% endif %}>Deportivo</option>
+                                <option value="pickup" {% if selected_category == 'pickup' %}selected{% endif %}>Pickup</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="year" class="form-label">Año</label>
+                            <select class="form-select" id="year" name="year">
+                                <option value="">Todos los años</option>
+                                {% for year in years %}
+                                    <option value="{{ year }}" {% if selected_year == year %}selected{% endif %}>{{ year }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="price" class="form-label">Precio Máximo</label>
+                            <select class="form-select" id="price" name="max_price">
+                                <option value="">Sin límite</option>
+                                <option value="30000" {% if max_price == '30000' %}selected{% endif %}>$30,000</option>
+                                <option value="50000" {% if max_price == '50000' %}selected{% endif %}>$50,000</option>
+                                <option value="75000" {% if max_price == '75000' %}selected{% endif %}>$75,000</option>
+                                <option value="100000" {% if max_price == '100000' %}selected{% endif %}>$100,000</option>
+                            </select>
+                        </div>
+                        <div class="col-12 d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary me-2">Aplicar filtros</button>
+                            <a href="{% url 'cars' %}" class="btn btn-outline-secondary">Limpiar filtros</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sort options -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <p>Mostrando {{ cars|length }} vehículos</p>
+        </div>
+        <div class="col-md-6 text-md-end">
+            <div class="btn-group" role="group">
+                <a href="?{% if request.GET.urlencode %}{{ request.GET.urlencode }}&{% endif %}sort=price_asc" class="btn btn-outline-secondary btn-sm">Precio: Menor a Mayor</a>
+                <a href="?{% if request.GET.urlencode %}{{ request.GET.urlencode }}&{% endif %}sort=price_desc" class="btn btn-outline-secondary btn-sm">Precio: Mayor a Menor</a>
+                <a href="?{% if request.GET.urlencode %}{{ request.GET.urlencode }}&{% endif %}sort=year_desc" class="btn btn-outline-secondary btn-sm">Más recientes</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Cars Listing -->
+    <div class="row">
+        {% if cars %}
+            {% for car in cars %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card car-card h-100">
+                        <!-- Cambia esta línea -->
+                        <img src="{{ car.image_url }}" class="card-img-top" alt="{{ car.brand }} {{ car.model }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ car.year }} {{ car.brand }} {{ car.model }}</h5>
+                            <p class="car-price text-danger">${{ car.price|floatformat:0|intcomma }}</p>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-calendar-alt me-2"></i> {{ car.year }}</li>
+                                <li><i class="fas fa-car me-2"></i> {{ car.get_category_display }}</li>
+                                <li><i class="fas fa-tag me-2"></i> {{ car.condition }}</li>
+                            </ul>
+                            <p class="card-text">{{ car.description|truncatewords:15 }}</p>
+                        </div>
+                        <div class="card-footer bg-white border-top-0">
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'car_detail' car.id %}" class="btn btn-primary">Ver detalles</a>
+                                <button class="btn btn-outline-primary" onclick="inquireAboutCar('{{ car.id }}', '{{ car.year }} {{ car.brand }} {{ car.model }}')">Consultar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12 text-center py-5">
+                <h3>No se encontraron vehículos que coincidan con los filtros seleccionados</h3>
+                <p>Intenta ajustar los filtros para ver más resultados</p>
+                <a href="{% url 'cars' %}" class="btn btn-primary mt-3">Ver todos los vehículos</a>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if cars.has_other_pages %}
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if cars.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ cars.previous_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link" aria-hidden="true">&laquo;</span>
+                    </li>
+                {% endif %}
+                
+                {% for i in cars.paginator.page_range %}
+                    {% if cars.number == i %}
+                        <li class="page-item active"><span class="page-link">{{ i }}</span></li>
+                    {% else %}
+                        <li class="page-item"><a class="page-link" href="?page={{ i }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}">{{ i }}</a></li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if cars.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ cars.next_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link" aria-hidden="true">&raquo;</span>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% endif %}
+</div>
+
+<!-- Inquiry Modal -->
+<div class="modal fade" id="inquiryModal" tabindex="-1" aria-labelledby="inquiryModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="inquiryModalLabel">Consultar sobre vehículo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Estás interesado en: <strong id="inquiryCarName"></strong></p>
+                <form method="post" action="{% url 'car_inquiry' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="car_id" id="carIdInput">
+                    <div class="mb-3">
+                        <label for="inquiryName" class="form-label">Nombre completo*</label>
+                        <input type="text" class="form-control" id="inquiryName" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="inquiryEmail" class="form-label">Correo electrónico*</label>
+                        <input type="email" class="form-control" id="inquiryEmail" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="inquiryPhone" class="form-label">Teléfono*</label>
+                        <input type="tel" class="form-control" id="inquiryPhone" name="phone" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="inquiryMessage" class="form-label">Mensaje*</label>
+                        <textarea class="form-control" id="inquiryMessage" name="message" rows="3" required></textarea>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Enviar consulta</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

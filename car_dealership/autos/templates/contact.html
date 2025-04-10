@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+
+{% block title %}Contacto - Auto Elite{% endblock %}
+{% load widget_tweaks %}
+
+{% block content %}
+<!-- Incluye Font Awesome para los iconos -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+<div class="container">
+    <div class="row mb-5">
+        <div class="col-md-6">
+            <h1 class="mb-4">Contáctanos</h1>
+            <p class="lead">Estamos aquí para responder todas tus preguntas. Completa el formulario y nos pondremos en contacto contigo lo antes posible.</p>
+            
+            <div class="contact-info mt-5">
+                <h3>Información de Contacto</h3>
+                <ul class="list-unstyled">
+                    <li class="mb-3"><i class="fas fa-map-marker-alt me-2"></i> Av. Automóvil 123, Santo Domingo</li>
+                    <li class="mb-3"><i class="fas fa-phone me-2"></i> (809) 555-1234</li>
+                    <li class="mb-3"><i class="fas fa-envelope me-2"></i> info@autoelite.com</li>
+                    <li class="mb-3"><i class="fas fa-clock me-2"></i> Lunes a Sábado: 9:00 AM - 6:00 PM</li>
+                </ul>
+            </div>
+            
+            <div class="social-contact mt-4">
+                <h3>Síguenos</h3>
+                <div class="social-icons fs-2">
+                    <a href="https://facebook.com/" target="_blank" class="text-primary me-3"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://instagram.com/" target="_blank" class="text-danger me-3"><i class="fab fa-instagram"></i></a>
+                    <a href="https://twitter.com/" target="_blank" class="text-info me-3"><i class="fab fa-twitter"></i></a>
+                    <a href="https://linkedin.com/" target="_blank" class="text-primary me-3"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="https://github.com/" target="_blank" class="text-dark"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="contact-form p-4 bg-light rounded shadow">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                
+                <form id="contactForm" method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    <!-- Nombre -->
+                    <div class="mb-3">
+                        <label for="{{ form.name.id_for_label }}" class="form-label">Nombre completo*</label>
+                        {% render_field form.name class="form-control" placeholder="Ingresa tu nombre" required="true" %}
+                        <div class="invalid-feedback">
+                            Por favor ingresa tu nombre
+                        </div>
+                    </div>
+                    
+                    <!-- Email -->
+                    <div class="mb-3">
+                        <label for="{{ form.email.id_for_label }}" class="form-label">Correo electrónico*</label>
+                        {% render_field form.email class="form-control" placeholder="Ingresa tu email" required="true" %}
+                        <div class="invalid-feedback">
+                            Por favor ingresa un email válido
+                        </div>
+                    </div>
+                    
+                    <!-- Teléfono -->
+                    <div class="mb-3">
+                        <label for="{{ form.phone.id_for_label }}" class="form-label">Teléfono</label>
+                        {% render_field form.phone class="form-control" placeholder="Ingresa tu número telefónico" %}
+                    </div>
+                    
+                    <!-- Mensaje -->
+                    <div class="mb-3">
+                        <label for="{{ form.message.id_for_label }}" class="form-label">Mensaje*</label>
+                        {% render_field form.message class="form-control" rows="5" placeholder="¿En qué podemos ayudarte?" required="true" %}
+                        <div class="invalid-feedback">
+                            Por favor escribe tu mensaje
+                        </div>
+                    </div>
+                    
+                    <!-- Checkbox de privacidad -->
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="privacyCheck" required>
+                        <label class="form-check-label" for="privacyCheck">
+                            He leído y acepto la <a href="{% url 'privacy' %}">política de privacidad</a>*
+                        </label>
+                        <div class="invalid-feedback">
+                            Debes aceptar la política de privacidad
+                        </div>
+                    </div>
+                    
+                    <!-- Botón de enviar -->
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Enviar mensaje</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Mapa -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <h2 class="text-center mb-4">Nuestra Ubicación</h2>
+            <div class="map-container ratio ratio-16x9">
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3784.176071279512!2d-69.9118689!3d18.4815977!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTjCsDI4JzU0LjAiTiA2OcKwNTQnNDIuOSJX!5e0!3m2!1ses!2sdo!4v1650000000000!5m2!1ses!2sdo" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts al final del body -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Validación del formulario -->
+<script>
+// Ejemplo de validación básica
+(function() {
+    'use strict';
+    window.addEventListener('load', function() {
+        var forms = document.getElementsByClassName('needs-validation');
+        Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }, false);
+})();
+
+document.getElementById('contactForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const form = e.target;
+    const formData = new FormData(form);
+    
+    fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Mostrar popup de éxito
+            Swal.fire({
+                title: '¡Éxito!',
+                text: data.message,
+                icon: 'success',
+                confirmButtonText: 'OK',
+                position: 'top-end',
+                toast: true,
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false
+            });
+            
+            // Limpiar formulario
+            form.reset();
+        } else {
+            // Mostrar errores de validación
+            for (const [field, errors] of Object.entries(data.errors)) {
+                const input = form.querySelector(`[name="${field}"]`);
+                if (input) {
+                    input.classList.add('is-invalid');
+                    const feedback = input.nextElementSibling || input.parentNode.querySelector('.invalid-feedback');
+                    if (feedback) {
+                        feedback.textContent = errors.join(' ');
+                    }
+                }
+            }
+        }
+    })
+    .catch(error => {
+        Swal.fire({
+            title: 'Error',
+            text: 'Ocurrió un error al enviar el formulario',
+            icon: 'error'
+        });
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,494 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ article.title }} | Auto Elite{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <!-- Header with background image -->
+    {% if article.image_url %}
+    <div class="article-header position-relative mb-5">
+        <div class="article-hero" style="height: 400px; overflow: hidden;">
+            <img src="{{ article.image_url }}" class="w-100 h-100 object-fit-cover" alt="{{ article.title }}" style="filter: brightness(0.7);">
+        </div>
+        <div class="article-title-overlay position-absolute start-0 bottom-0 w-100 p-4 text-white" style="background: linear-gradient(0deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);">
+            <div class="container">
+                <h1 class="display-4 fw-bold mb-3">{{ article.title }}</h1>
+                <div class="article-meta d-flex align-items-center">
+                    <span class="me-4"><i class="far fa-calendar me-2"></i>{{ article.created_at|date:"d F, Y" }}</span>
+                    <span class="me-4"><i class="far fa-user me-2"></i>Auto Elite Staff</span>
+                    {% if article.category %}
+                    <span><i class="fas fa-tag me-2"></i>{{ article.category.name }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Breadcrumb with enhanced styling -->
+    <nav aria-label="breadcrumb" class="bg-light p-3 rounded shadow-sm mb-4">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}" class="text-decoration-none"><i class="fas fa-home me-1"></i>Inicio</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'articles' %}" class="text-decoration-none"><i class="fas fa-newspaper me-1"></i>Noticias</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ article.title|truncatechars:40 }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Main Article Content -->
+        <div class="col-lg-8">
+            <article class="article-content bg-white p-4 rounded shadow-sm">
+                {% if not article.image_url %}
+                <header class="mb-4">
+                    <h1 class="article-title display-4 fw-bold">{{ article.title }}</h1>
+                    <div class="article-meta text-muted">
+                        <span class="me-3"><i class="far fa-calendar me-1"></i>{{ article.created_at|date:"d F, Y" }}</span>
+                        <span><i class="far fa-user me-1"></i>Auto Elite Staff</span>
+                    </div>
+                </header>
+                {% endif %}
+
+                <div class="article-body fs-5 lh-lg">
+                    {{ article.content|safe|linebreaks }}
+                </div>
+
+                <footer class="article-footer mt-5 pt-4 border-top">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <div class="article-tags">
+                                {% if article.tags.all %}
+                                <strong class="me-2"><i class="fas fa-tags me-2"></i>Etiquetas:</strong>
+                                {% for tag in article.tags.all %}
+                                <a href="{% url 'articles' %}?tag={{ tag.slug }}" class="badge bg-primary text-decoration-none me-1">{{ tag.name }}</a>
+                                {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="social-share-buttons text-md-end mt-3 mt-md-0">
+                                <h5 class="share-title mb-3"><i class="fas fa-share-alt me-2"></i>Compartir este artículo:</h5>
+                                <div class="d-flex justify-content-md-end gap-2">
+                                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" 
+                                       target="_blank" 
+                                       class="btn btn-social btn-facebook" 
+                                       data-bs-toggle="tooltip"
+                                       title="Compartir en Facebook">
+                                        <i class="fab fa-facebook-f"></i>
+                                    </a>
+                                    <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ article.title|urlencode }}" 
+                                       target="_blank" 
+                                       class="btn btn-social btn-twitter" 
+                                       data-bs-toggle="tooltip"
+                                       title="Compartir en Twitter">
+                                        <i class="fab fa-twitter"></i>
+                                    </a>
+                                    <a href="https://wa.me/?text={{ article.title|urlencode }}%20{{ request.build_absolute_uri }}" 
+                                       target="_blank" 
+                                       class="btn btn-social btn-whatsapp" 
+                                       data-bs-toggle="tooltip"
+                                       title="Compartir en WhatsApp">
+                                        <i class="fab fa-whatsapp"></i>
+                                    </a>
+                                    <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.build_absolute_uri }}" 
+                                       target="_blank" 
+                                       class="btn btn-social btn-linkedin" 
+                                       data-bs-toggle="tooltip"
+                                       title="Compartir en LinkedIn">
+                                        <i class="fab fa-linkedin-in"></i>
+                                    </a>
+                                    <a href="https://pinterest.com/pin/create/button/?url={{ request.build_absolute_uri }}&media={{ article.image_url }}&description={{ article.title|urlencode }}" 
+                                       target="_blank" 
+                                       class="btn btn-social btn-pinterest" 
+                                       data-bs-toggle="tooltip"
+                                       title="Compartir en Pinterest">
+                                        <i class="fab fa-pinterest-p"></i>
+                                    </a>
+                                    <a href="mailto:?subject={{ article.title|urlencode }}&body={{ article.title|urlencode }}%20{{ request.build_absolute_uri }}" 
+                                       class="btn btn-social btn-email" 
+                                       data-bs-toggle="tooltip"
+                                       title="Compartir por Email">
+                                        <i class="fas fa-envelope"></i>
+                                    </a>
+                                    <button class="btn btn-social btn-copy" 
+                                            id="copyLinkBtn" 
+                                            data-bs-toggle="tooltip"
+                                            title="Copiar enlace"
+                                            onclick="copyArticleLink()">
+                                        <i class="fas fa-link"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </footer>
+            </article>
+
+            <!-- Comments Section with enhanced styling -->
+            <section class="article-comments mt-5">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="mb-0"><i class="far fa-comments me-2"></i>Comentarios <span class="badge bg-primary">{{ comments_count }}</span></h3>
+                </div>
+                
+                {% if comments %}
+                <div class="comments-list">
+                    {% for comment in comments %}
+                    <div class="comment p-4 mb-3 bg-white rounded shadow-sm">
+                        <div class="comment-header d-flex justify-content-between align-items-center">
+                            <div class="comment-author d-flex align-items-center">
+                                <div class="comment-avatar bg-primary text-white rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                    {{ comment.name|make_list|first|upper }}
+                                </div>
+                                <div>
+                                    <h5 class="fw-bold mb-0">{{ comment.name }}</h5>
+                                    <small class="text-muted">{{ comment.created_at|date:"d M, Y H:i" }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="comment-body mt-3">
+                            <p class="mb-0 fs-5">{{ comment.comment }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center p-5 bg-light rounded">
+                    <i class="far fa-comments fa-3x text-muted mb-3"></i>
+                    <p class="lead mb-0">No hay comentarios aún. ¡Sé el primero en comentar!</p>
+                </div>
+                {% endif %}
+
+                <!-- Enhanced Comment Form -->
+                <div class="comment-form-wrapper mt-4 p-4 bg-white rounded shadow-sm">
+                    <h4 class="mb-4"><i class="far fa-edit me-2"></i>Deja un comentario</h4>
+                    <form id="commentForm" method="post" action="{% url 'article_comment' article.id %}" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="commentName" class="form-label">Nombre</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="far fa-user"></i></span>
+                                    <input type="text" class="form-control" id="commentName" name="name" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="commentEmail" class="form-label">Email</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="far fa-envelope"></i></span>
+                                    <input type="email" class="form-control" id="commentEmail" name="email" required>
+                                </div>
+                                <div class="form-text"><i class="fas fa-lock me-1"></i>Tu email no será publicado</div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="commentContent" class="form-label">Comentario</label>
+                            <textarea class="form-control" id="commentContent" name="comment" rows="4" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="far fa-paper-plane me-2"></i>Publicar comentario
+                        </button>
+                    </form>
+                </div>
+            </section>
+        </div>
+
+        <!-- Enhanced Sidebar -->
+        <div class="col-lg-4 mt-5 mt-lg-0">
+            <!-- About Author with enhanced styling -->
+            <div class="sidebar-widget mb-4 p-4 bg-white rounded shadow-sm">
+                <div class="d-flex align-items-center mb-3">
+                    <img src="{% static 'images/logo.png' %}" alt="Auto Elite" class="rounded-circle me-3" width="60">
+                    <h4 class="widget-title mb-0">Auto Elite Blog</h4>
+                </div>
+                <p class="text-muted mb-3">Todo lo que necesitas saber sobre el mundo automotriz, las últimas tendencias y los mejores consejos para tu vehículo.</p>
+                <div class="social-links">
+                    <a href="#" class="btn btn-sm btn-outline-primary me-2"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="btn btn-sm btn-outline-info me-2"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="btn btn-sm btn-outline-danger"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+
+            <!-- Enhanced Search Widget -->
+            <div class="sidebar-widget mb-4 p-4 bg-white rounded shadow-sm">
+                <h4 class="widget-title mb-3"><i class="fas fa-search me-2"></i>Buscar</h4>
+                <form action="{% url 'articles' %}" method="get">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Buscar artículos..." name="search">
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Recent Articles with enhanced styling -->
+            <div class="sidebar-widget mb-4 p-4 bg-white rounded shadow-sm">
+                <h4 class="widget-title mb-3"><i class="fas fa-clock me-2"></i>Artículos recientes</h4>
+                <div class="recent-articles">
+                    {% for recent_article in recent_articles %}
+                    <div class="recent-article d-flex align-items-center mb-3 pb-3 {% if not forloop.last %}border-bottom{% endif %}">
+                        {% if recent_article.image_url %}
+                        <a href="{% url 'article_detail' recent_article.id %}" class="recent-article-image me-3">
+                            <img src="{{ recent_article.image_url }}" alt="{{ recent_article.title }}" 
+                                 class="rounded" style="width: 80px; height: 60px; object-fit: cover;">
+                        </a>
+                        {% endif %}
+                        <div class="recent-article-info">
+                            <h5 class="recent-article-title mb-1">
+                                <a href="{% url 'article_detail' recent_article.id %}" class="text-decoration-none text-dark">
+                                    {{ recent_article.title|truncatechars:50 }}
+                                </a>
+                            </h5>
+                            <div class="text-muted small">
+                                <i class="far fa-calendar-alt me-1"></i>{{ recent_article.created_at|date:"d M, Y" }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Categories with enhanced styling -->
+            <div class="sidebar-widget mb-4 p-4 bg-white rounded shadow-sm">
+                <h4 class="widget-title mb-3"><i class="fas fa-folder-open me-2"></i>Categorías</h4>
+                <div class="categories-list">
+                    {% for category in categories %}
+                    <a href="{% url 'articles' %}?category={{ category.slug }}" 
+                       class="category-item d-flex justify-content-between align-items-center p-2 rounded mb-2 text-decoration-none {% if category.slug == article.category.slug %}active{% endif %}"
+                       style="background-color: {% if category.slug == article.category.slug %}#e9ecef{% else %}transparent{% endif %}">
+                        <span>{{ category.name }}</span>
+                        <span class="badge bg-primary rounded-pill">{{ category.article_count }}</span>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Enhanced Subscribe Widget -->
+            <div class="sidebar-widget mb-4 p-4 bg-primary text-white rounded shadow-sm">
+                <h4 class="widget-title mb-3"><i class="fas fa-envelope-open-text me-2"></i>Suscríbete al boletín</h4>
+                <p class="mb-4">Recibe las últimas noticias, ofertas y consejos directamente en tu correo electrónico.</p>
+                <form id="subscribeForm" action="{% url 'subscribe' %}" method="post" class="subscription-form">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white"><i class="far fa-envelope"></i></span>
+                            <input type="email" class="form-control" id="subscriberEmail" name="email" 
+                                   placeholder="Tu correo electrónico" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-light w-100">
+                        <i class="fas fa-paper-plane me-2"></i>Suscribirse
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Estilos adicionales para la página de artículos */
+.btn-facebook { background-color: #3b5998; color: white; }
+.btn-twitter { background-color: #1da1f2; color: white; }
+.btn-whatsapp { background-color: #25d366; color: white; }
+.btn-linkedin { background-color: #0077b5; color: white; }
+.btn-pinterest { background-color: #bd081c; color: white; }
+.btn-email { background-color: #6c757d; color: white; }
+.btn-copy { background-color: #343a40; color: white; }
+
+.btn-facebook:hover, .btn-twitter:hover, .btn-whatsapp:hover, .btn-linkedin:hover, .btn-pinterest:hover, .btn-email:hover, .btn-copy:hover {
+    color: white;
+    filter: brightness(90%);
+}
+
+.article-content {
+    font-size: 1.1rem;
+    line-height: 1.8;
+}
+
+.comment-avatar {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.category-item:hover {
+    background-color: #f8f9fa;
+    transition: background-color 0.3s ease;
+}
+
+.category-item.active {
+    font-weight: bold;
+}
+
+.subscription-form .form-control:focus {
+    border-color: #fff;
+    box-shadow: 0 0 0 0.25rem rgba(255,255,255,0.25);
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Mejora de la validación del formulario de comentarios
+    const commentForm = document.getElementById('commentForm');
+    if (commentForm) {
+        commentForm.addEventListener('submit', function(event) {
+            if (!this.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            this.classList.add('was-validated');
+
+            const name = document.getElementById('commentName').value.trim();
+            const email = document.getElementById('commentEmail').value.trim();
+            const content = document.getElementById('commentContent').value.trim();
+            
+            if (!name || !email || !content) {
+                Swal.fire({
+                    title: 'Campo requerido',
+                    text: 'Por favor completa todos los campos para comentar.',
+                    icon: 'warning',
+                    confirmButtonText: 'Entendido'
+                });
+                return false;
+            }
+            
+            // Validación mejorada de email
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailPattern.test(email)) {
+                Swal.fire({
+                    title: 'Email inválido',
+                    text: 'Por favor ingresa un correo electrónico válido.',
+                    icon: 'warning',
+                    confirmButtonText: 'Entendido'
+                });
+                return false;
+            }
+        });
+    }
+    
+    // Mejora de la validación del formulario de suscripción
+    const subscribeForm = document.getElementById('subscribeForm');
+    if (subscribeForm) {
+        subscribeForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const email = document.getElementById('subscriberEmail').value.trim();
+            
+            if (!email) {
+                Swal.fire({
+                    title: 'Campo requerido',
+                    text: 'Por favor ingresa tu correo electrónico.',
+                    icon: 'warning',
+                    confirmButtonText: 'Entendido'
+                });
+                return false;
+            }
+            
+            // Validación mejorada de email
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailPattern.test(email)) {
+                Swal.fire({
+                    title: 'Email inválido',
+                    text: 'Por favor ingresa un correo electrónico válido.',
+                    icon: 'warning',
+                    confirmButtonText: 'Entendido'
+                });
+                return false;
+            }
+            
+            // Envío del formulario via AJAX con animación de carga
+            Swal.fire({
+                title: 'Procesando...',
+                text: 'Estamos registrando tu suscripción',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                willOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            fetch(subscribeForm.action, {
+                method: 'POST',
+                body: new FormData(subscribeForm),
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        title: '¡Gracias por suscribirte!',
+                        text: 'Recibirás nuestro boletín con las últimas novedades.',
+                        icon: 'success',
+                        confirmButtonText: 'Entendido'
+                    });
+                    subscribeForm.reset();
+                } else {
+                    Swal.fire({
+                        title: 'Error',
+                        text: data.error || 'Ha ocurrido un error. Por favor intenta nuevamente.',
+                        icon: 'error',
+                        confirmButtonText: 'Cerrar'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Ha ocurrido un error. Por favor intenta nuevamente.',
+                    icon: 'error',
+                    confirmButtonText: 'Cerrar'
+                });
+            });
+        });
+    }
+    
+    // Animaciones suaves al hacer scroll
+    const animateOnScroll = () => {
+        const elements = document.querySelectorAll('.article-content, .comment, .sidebar-widget');
+        elements.forEach(element => {
+            const elementTop = element.getBoundingClientRect().top;
+            const elementBottom = element.getBoundingClientRect().bottom;
+            const isVisible = elementTop < window.innerHeight && elementBottom >= 0;
+            
+            if (isVisible) {
+                element.style.opacity = '1';
+                element.style.transform = 'translateY(0)';
+            }
+        });
+    };
+    
+    // Inicializar elementos con opacidad 0
+    document.querySelectorAll('.article-content, .comment, .sidebar-widget').forEach(element => {
+        element.style.opacity = '0';
+        element.style.transform = 'translateY(20px)';
+        element.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+    });
+    
+    // Ejecutar animaciones al cargar y al hacer scroll
+    window.addEventListener('load', animateOnScroll);
+    window.addEventListener('scroll', animateOnScroll);
+});
+
+// Función para copiar el enlace del artículo
+function copyArticleLink() {
+    const link = "{{ request.build_absolute_uri }}";
+    navigator.clipboard.writeText(link).then(() => {
+        Swal.fire({
+            title: 'Enlace copiado',
+            text: 'El enlace del artículo ha sido copiado al portapapeles.',
+            icon: 'success',
+            confirmButtonText: 'Entendido'
+        });
+    }).catch(err => {
+        console.error('Error al copiar el enlace:', err);
+        Swal.fire({
+            title: 'Error',
+            text: 'No se pudo copiar el enlace. Por favor intenta nuevamente.',
+            icon: 'error',
+            confirmButtonText: 'Cerrar'
+        });
+    });
+}
+</script>
+{% endblock %}

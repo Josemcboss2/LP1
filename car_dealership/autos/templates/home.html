@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block title %}Auto Elite - El Mejor Concesionario{% endblock %}
+
+{% block content %}
+<!-- Carousel -->
+<div id="homeCarousel" class="carousel slide mb-5" data-bs-ride="carousel">
+    <div class="carousel-indicators">
+        {% for car in featured_cars %}
+            <button type="button" data-bs-target="#homeCarousel" data-bs-slide-to="{{ forloop.counter0 }}" {% if forloop.first %}class="active"{% endif %}></button>
+        {% endfor %}
+    </div>
+    <div class="carousel-inner">
+        {% for car in featured_cars %}
+            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                <img src="{% if car.image_url %}{{ car.image_url }}{% else %}{% static 'images/default-car.jpg' %}{% endif %}" 
+                class="d-block w-100" 
+                alt="{{ car.brand }} {{ car.model }}">
+
+                <div class="carousel-caption d-none d-md-block">
+                    <h2>{{ car.year }} {{ car.brand }} {{ car.model }}</h2>
+                    <p>${{ car.price }}</p>
+                    <a href="{% url 'car_detail' car.id %}" class="btn btn-primary">Ver Detalles</a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#homeCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Anterior</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#homeCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Siguiente</span>
+    </button>
+</div>
+
+<!-- Welcome Section -->
+<section class="text-center my-5">
+    <h1 class="display-4">Bienvenido a Auto Elite</h1>
+    <p class="lead">Su concesionario de confianza con la mejor selección de vehículos nuevos y usados.</p>
+    <button class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#aboutUsModal">Conocer más</button>
+</section>
+
+<!-- Featured Categories -->
+<section class="my-5">
+    <h2 class="text-center mb-4">Nuestras Categorías</h2>
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card category-card">
+                <img src="https://www.wsupercars.com/wallpapers-regular/Mercedes-Benz/2025-Mercedes-AMG-GT63-S-E-Performance-4-Door-001-2160.jpg" class="card-img-top" alt="Sedanes">
+                <div class="card-body text-center">
+                    <h3 class="card-title">Sedanes</h3>
+                    <p class="card-text">Elegancia y confort para toda la familia</p>
+                    <a href="{% url 'cars' %}?category=sedan" class="btn btn-outline-primary">Ver Sedanes</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card category-card">
+                <img src="https://www.wsupercars.com/wallpapers-regular/Mercedes-Benz/2025-Mercedes-Benz-G58--with-EQ-Technology-001-2160.jpg" class="card-img-top" alt="SUVs">
+                <div class="card-body text-center">
+                    <h3 class="card-title">SUVs</h3>
+                    <p class="card-text">Versatilidad y espacio para todas tus aventuras</p>
+                    <a href="{% url 'cars' %}?category=suv" class="btn btn-outline-primary">Ver SUVs</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card category-card">
+                <img src="https://www.wsupercars.com/wallpapers-regular/Lamborghini/2024-Lamborghini-Revuelto-Opera-Unica-001-2160.jpg" class="card-img-top" alt="Deportivos">
+                <div class="card-body text-center">
+                    <h3 class="card-title">Deportivos</h3>
+                    <p class="card-text">Velocidad y adrenalina en su máxima expresión</p>
+                    <a href="{% url 'cars' %}?category=sports" class="btn btn-outline-primary">Ver Deportivos</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Latest News -->
+<section class="my-5">
+    <h2 class="text-center mb-4">Últimas Noticias</h2>
+    <div class="row">
+        {% for article in latest_articles %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    {% if article.image_url %}
+                        <img src="{{ article.image_url }}" class="card-img-top" alt="{{ article.title }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <h3 class="card-title">{{ article.title }}</h3>
+                        <p class="card-text">{{ article.content|truncatewords:20 }}</p>
+                    </div>
+                    <div class="card-footer">
+                        <a href="{% url 'article_detail' article.id %}" class="btn btn-sm btn-primary">Leer más</a>
+                        <small class="text-muted float-end">{{ article.created_at|date:"d/m/Y" }}</small>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    <div class="text-center mt-3">
+        <a href="{% url 'articles' %}" class="btn btn-outline-primary">Ver todas las noticias</a>
+    </div>
+</section>
+
+<!-- Modal -->
+<div class="modal fade" id="aboutUsModal" tabindex="-1" aria-labelledby="aboutUsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="aboutUsModalLabel">Sobre Nosotros</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Somos una empresa dedicada a ofrecer los mejores vehículos del mercado. Nuestro objetivo es brindar una experiencia única a nuestros clientes, con un enfoque en calidad, confianza y satisfacción.</p>
+                <p>Contamos con un equipo de profesionales altamente capacitados para ayudarte a encontrar el auto de tus sueños.</p>
+                <p>¡Gracias por confiar en nosotros!</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
