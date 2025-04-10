@@ -231,12 +231,15 @@ def subscribe(request):
     if request.method == 'POST':
         email = request.POST.get('email')
         try:
-            Subscriber.objects.create(email=email)
-            messages.success(request, '¡Gracias por suscribirte!')
-        except:
-            messages.error(request, 'Este correo ya está suscrito.')
-        return redirect(request.META.get('HTTP_REFERER', 'home'))
-    return redirect('home')
+            subscriber = Subscriber.objects.create(email=email)
+            messages.success(request, '¡Gracias por suscribirte a nuestro boletín!')
+        except Exception as e:
+            if 'unique constraint' in str(e).lower():
+                messages.info(request, 'Ya estás suscrito a nuestro boletín.')
+            else:
+                messages.error(request, 'Hubo un error al procesar tu suscripción. Por favor, intenta nuevamente.')
+        
+    return redirect(request.META.get('HTTP_REFERER', 'home'))
 
 def register(request):
     if request.method == 'POST':
