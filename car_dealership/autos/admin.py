@@ -24,6 +24,12 @@ class CarAdmin(admin.ModelAdmin):
         }),
     )
 
+@admin.register(Car360Image)
+class Car360ImageAdmin(admin.ModelAdmin):
+    list_display = ('car', 'angle')
+    list_filter = ('car',)
+    search_fields = ('car__brand', 'car__model')
+
 admin.site.register(ContactMessage)
 
 @admin.register(Category)
